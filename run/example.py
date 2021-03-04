@@ -43,4 +43,6 @@ class GetSettings(Base):
 
 
 if __name__ == "__main__":
-	GetSettings().main()
+	get_settings = GetSettings()
+	get_settings.main()
+	get_settings.display()
