@@ -12,18 +12,25 @@ from quickrun.lib.ssh import SSH
 import quickrun.lib.formatters as formatters
 
 
+__version__ = "0.0.1"
+
+
 @dataclass
 class Server:
 	name: str  # The name/tag for this server
 	ip: str  # The IP or hostname to connect to
-	user: str = "ubuntu"  # The user to connect as
+	user: str  # The user to connect as
 
 	@classmethod
-	def from_list(cls, server_list):
+	def from_list(cls, server_list, ip_type="PrivateIp", default_user="ubuntu"):
 		"""
 		Takes a list of server dicts and returns a List[Server]
 		"""
-		return list(map(lambda x: Server(name=x["Name"], ip=x["PrivateIp"]), server_list))
+		return list(map(lambda x: Server(
+			name=x["Name"],
+			ip=x[ip_type],
+			user=x.get("user", default_user)
+		), server_list))
 
 
 # A command object

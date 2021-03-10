@@ -34,7 +34,7 @@ class GetSettings(QuickRun):
 		]
 
 		# Define our servers
-		self.servers = Server.from_list(find_instances(name, region=region))
+		self.servers = Server.from_list(find_instances(name, region=region), user="ubuntu")
 
 	# == HOOKS ==#
 	def before_connection(self, server):

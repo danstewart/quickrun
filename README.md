@@ -20,11 +20,6 @@ $ source venv/bin/activate
 $ pip install -r requirements.txt
 ```
 
-#### Running
-```
-python3 -m run.example --name 'aws-name-search'
-```
-
 #### Defining new scripts
 
 All scripts live in the `run/` directory.  
