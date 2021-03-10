@@ -8,8 +8,11 @@ It defines the basic outline runners should have and validates they are set corr
 import sys
 from typing import List, Dict
 from dataclasses import dataclass
-from quickrun.lib.ssh import SSH
+
+# Export our lib to callers
+from quickrun.lib.ssh import SSH as ssh
 import quickrun.lib.formatters as formatters
+import quickrun.lib.aws_cli as aws_cli
 
 
 __version__ = "0.0.1"
@@ -71,12 +74,12 @@ class QuickRun:
 
 		# Go through all servers and commands and run them
 		for server in self.servers:
-			ssh = self.connect(server)
-			if not ssh:
+			conn = self.connect(server)
+			if not conn:
 				continue
 
 			for command in self.commands:
-				self.run(ssh, command, server)
+				self.run(conn, command, server)
 
 		# Call our after_all hook
 		return self.after_all()
@@ -89,7 +92,7 @@ class QuickRun:
 		self.before_connection(server)
 
 		try:
-			ssh = SSH(server.ip, server.user)
+			conn = ssh(server.ip, server.user)
 		except Exception as e:
 			print(
 				f"Following error was raised during ssh to {server}: {e}",
@@ -99,16 +102,16 @@ class QuickRun:
 			return
 
 		self.after_connection(server)
-		return ssh
+		return conn
 
-	def run(self, ssh, command: Command, server: Server):
+	def run(self, conn, command: Command, server: Server):
 		"""
 		Call pre hook, run command, call post hook
 		"""
 		self.before_command(server, command)
 
 		try:
-			output = ssh.run(command.cmd, strip_cmd=True)
+			output = conn.run(command.cmd, strip_cmd=True)
 		except Exception as e:
 			print(
 				f"Following error was raised while running {command} on {server}: {e}",
