@@ -6,7 +6,7 @@ Get the openssl version for all haproxy servers
 
 import sys
 import click
-from quickrun import Base, Command, Server
+from quickrun import QuickRun, Command, Server
 from quickrun.lib.aws_cli import find_instances
 import quickrun.lib.formatters as formatters
 
@@ -15,24 +15,17 @@ import quickrun.lib.formatters as formatters
 @click.option("--name", required=True, help="The env name to search for")
 @click.option("--region", default="eu-west-2", help="The env name to search for")
 def main(name, region):
-	scratch = Scratch(name=name, region=region)
-	scratch.main()
-	scratch.display()
+	qr = QuickRun()
 
+	# Setup
+	qr.formatter = formatters.fake_shell
+	qr.commands = [
+		Command(name="List dir", cmd="sudo ls -ld /var/log/tomcat*"),
+	]
+	qr.servers = Server.from_list(find_instances(name, region=region))
 
-class Scratch(Base):
-	def __init__(self, name, region="eu-west-2"):
-		super().__init__()
-
-		self.formatter = formatters.fake_shell
-
-		# Define our commands
-		self.commands = [
-			Command(name="List dir", cmd="sudo ls -ld /var/log/tomcat*"),
-		]
-
-		# Define our servers
-		self.servers = Server.from_list(find_instances(name, region=region))
+	qr.main()
+	qr.display()
 
 
 if __name__ == "__main__":

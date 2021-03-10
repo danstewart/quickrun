@@ -7,11 +7,10 @@ Example module
 import sys
 import click
 from rich.console import Console
-from quickrun import Base, Command, Server
+from quickrun import QuickRun, Command, Server
 from quickrun.lib.aws_cli import find_instances
 
 console = Console()
-
 
 @click.command()
 @click.option("--name", required=True, help="The env name to search for")
@@ -19,10 +18,9 @@ console = Console()
 def main(name, region):
 	get_settings = GetSettings(name=name, region=region)
 	get_settings.main()
-	get_settings.display()
 
 
-class GetSettings(Base):
+class GetSettings(QuickRun):
 	def __init__(self, name, region="eu-west-2"):
 		super().__init__()
 

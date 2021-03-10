@@ -13,6 +13,10 @@ def default(state):
 		print(result)
 
 
+def none(_):
+	pass
+
+
 def fake_shell(state):
 	console = RichConsole()
 	for result in state.get("output", []):
