@@ -9,7 +9,7 @@ import sys
 from typing import List, Dict
 from dataclasses import dataclass
 from quickrun.lib.ssh import SSH
-from quickrun.hooks import DefaultHooks
+import quickrun.lib.formatters as formatters
 
 @dataclass
 class Server:
@@ -32,11 +32,10 @@ class Base:
 		self.servers: List[Server] = []
 		self.commands: List[Command] = []
 		self.state: Dict[str, any] = {}
-		self.hooks = DefaultHooks()
+		self.formatter = formatters.default
 
 		# Config
 		self.store_state: bool = False
-		self.no_display: bool = False
 
 	# Run the commands
 	def main(self):
@@ -52,7 +51,7 @@ class Base:
 			print("Nothing to do")
 
 		# Call our before_all hook
-		self.hooks.before_all()
+		self.before_all()
 
 		# Go through all servers and commands and run them
 		for server in self.servers:
@@ -64,30 +63,30 @@ class Base:
 				self.run(ssh, command, server)
 
 		# Call our after_all hook
-		return self.hooks.after_all()
+		return self.after_all()
 
 	def connect(self, server: Server):
 		"""
 		Run prehook, Connect to server, run post hook
 		Return ssh instance
 		"""
-		self.hooks.before_connection(server)
+		self.before_connection(server)
 
 		try:
 			ssh = SSH(server.ip, server.user)
 		except Exception as e:
 			print(f"Following error was raised during ssh to {server}: {e}", file=sys.stderr)
-			self.hooks.on_error(e, server=server, action="Connect")
+			self.on_error(e, server=server, action="Connect")
 			return
 
-		self.hooks.after_connection(server)
+		self.after_connection(server)
 		return ssh
 
 	def run(self, ssh, command: Command, server: Server):
 		"""
 		Call pre hook, run command, call post hook
 		"""
-		self.hooks.before_command(server, command)
+		self.before_command(server, command)
 
 		try:
 			output = ssh.run(command.cmd, strip_cmd=True)
@@ -96,7 +95,7 @@ class Base:
 				f"Following error was raised while running {command} on {server}: {e}",
 				file=sys.stderr,
 			)
-			return self.hooks.on_error(e, server=server, command=command, action="Command")
+			return self.on_error(e, server=server, command=command, action="Command")
 
 		if 'output' not in self.state:
 			self.state['output'] = []
@@ -108,14 +107,51 @@ class Base:
 			'output': output.strip(),
 		})
 
-		self.hooks.after_command(server, command, output)
+		self.after_command(server, command, output)
 
 	def display(self):
-		if self.no_display:
-			return
+		"""
+		Display: Call out to the define formatter for displaying
+		"""
+		self.formatter(self.state)
 
-		for result in self.state.get('output', []):
-			print(result)
+	# == HOOKS ==#
+	"""
+	There are currently 7 types of hooks, and they
+	run in the order that that they are defined below
+	By default they all do nothing
+	You are expected to override them in your run module
+	eg. `self.hooks.before_all = lambda x: print("Starting...")`
+	"""
+
+	# before_all: Runs before anything is done
+	def before_all(self):
+		pass
+
+	# before_connection: Runs before connecting to each server
+	def before_connection(self, server):
+		pass
+
+	# after_connection: Runs after connecting to each server
+	def after_connection(self, server):
+		pass
+
+	# before_command: Runs before each command is ran
+	def before_command(self, server, command):
+		pass
+
+	# after_command: Runs after each command is ran
+	def after_command(self, server, command, output):
+		pass
+
+	# after_all: Runs after everything is done
+	def after_all(self):
+		pass
+
+	# on_error: Called when an error occurs
+	def on_error(self, exception, **info):
+		pass
+
 
 
 # == HELPERS ==#

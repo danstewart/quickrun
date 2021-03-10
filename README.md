@@ -1,6 +1,6 @@
-# Quick Run
+# quickrun
 
-Quickly create python modules to run commands across servers.  
+quickrun is a module designed to make it easy to run commands and gather info from multiple servers.  
 
 ## Dependencies
 - python3.8
@@ -9,7 +9,7 @@ Quickly create python modules to run commands across servers.
 
 ---
 
-## Get started
+## Getting started
 
 #### Setup
 ```
@@ -22,10 +22,9 @@ $ pip install -r requirements.txt
 
 #### Running
 ```
-python3 -m run.example
+python3 -m run.example --name 'aws-name-search'
 ```
 
-#### Adding new modules
-The intended usage here is to create new modules in `run/` which inherit from `quickrun.Base`.  
+#### Defining new scripts
 
-See `docs/` for more.  
+All scripts live in the `run` directory and should have a class extending `quickrun.Base`.  

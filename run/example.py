@@ -5,20 +5,24 @@ Example module
 """
 
 import sys
+import click
 from rich.console import Console
 from quickrun import Base, Command, Server
 from quickrun.lib.aws_cli import find_instances
 
 console = Console()
 
+@click.command()
+@click.option('--name', required=True, help='The env name to search for')
+@click.option('--region', default='eu-west-2', help='The env name to search for')
+def main(name, region):
+	get_settings = GetSettings(name=name, region=region)
+	get_settings.main()
+	get_settings.display()
 
 class GetSettings(Base):
-	def __init__(self):
+	def __init__(self, name, region='eu-west-2'):
 		super().__init__()
-
-		# Define our hooks
-		self.hooks.before_connection = self.before_connection
-		self.hooks.after_command = self.after_command
 
 		# Define our commands
 		self.commands = [
@@ -29,7 +33,7 @@ class GetSettings(Base):
 		]
 
 		# Define our servers
-		servers = find_instances("my-server-name")
+		servers = find_instances(name)
 		servers = list(map(lambda x: Server(name=x["Name"], ip=x["PrivateIp"]), servers))
 		self.servers = servers
 
@@ -43,6 +47,4 @@ class GetSettings(Base):
 
 
 if __name__ == "__main__":
-	get_settings = GetSettings()
-	get_settings.main()
-	get_settings.display()
+	main()

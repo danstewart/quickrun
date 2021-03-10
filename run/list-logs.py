@@ -6,29 +6,29 @@ Get the openssl version for all haproxy servers
 
 import sys
 import click
-import quickrun.lib.formatters as formatters
 from quickrun import Base, Command, Server
 from quickrun.lib.aws_cli import find_instances
+import quickrun.lib.formatters as formatters
 
 @click.command()
 @click.option('--name', required=True, help='The env name to search for')
 @click.option('--region', default='eu-west-2', help='The env name to search for')
 def main(name, region):
-	openssl = Openssl(name=name, region=region)
-	openssl.main()
-	openssl.display()
+	scratch = Scratch(name=name, region=region)
+	scratch.main()
+	scratch.display()
 
-class Openssl(Base):
+class Scratch(Base):
 	def __init__(self, name, region='eu-west-2'):
 		super().__init__()
 
-		self.formatter = formatters.table
+		self.formatter = formatters.fake_shell
 
 		# Define our commands
 		self.commands = [
 			Command(
-				name='Get openssl version',
-				cmd="openssl version"
+				name='List dir',
+				cmd="sudo ls -ld /var/log/tomcat*"
 			),
 		]
 
@@ -40,4 +40,5 @@ class Openssl(Base):
 
 if __name__ == '__main__':
 	main()
+
 
