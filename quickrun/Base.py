@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from quickrun.lib.ssh import SSH
 import quickrun.lib.formatters as formatters
 
+
 @dataclass
 class Server:
 	name: str  # The name/tag for this server
@@ -25,6 +26,7 @@ class Command:
 	cmd: str  # The command itself
 	test: bool = False  # Whether this is a test
 	expect_fail: bool = False  # Whether to treat non zero exit status as success
+
 
 class Base:
 	def __init__(self):
@@ -75,7 +77,10 @@ class Base:
 		try:
 			ssh = SSH(server.ip, server.user)
 		except Exception as e:
-			print(f"Following error was raised during ssh to {server}: {e}", file=sys.stderr)
+			print(
+				f"Following error was raised during ssh to {server}: {e}",
+				file=sys.stderr,
+			)
 			self.on_error(e, server=server, action="Connect")
 			return
 
@@ -97,15 +102,17 @@ class Base:
 			)
 			return self.on_error(e, server=server, command=command, action="Command")
 
-		if 'output' not in self.state:
-			self.state['output'] = []
+		if "output" not in self.state:
+			self.state["output"] = []
 
-		self.state['output'].append({
-			'server': server.name,
-			'ip': server.ip,
-			'command': command.cmd.strip(),
-			'output': output.strip(),
-		})
+		self.state["output"].append(
+			{
+				"server": server.name,
+				"ip": server.ip,
+				"command": command.cmd.strip(),
+				"output": output.strip(),
+			}
+		)
 
 		self.after_command(server, command, output)
 
@@ -151,7 +158,6 @@ class Base:
 	# on_error: Called when an error occurs
 	def on_error(self, exception, **info):
 		pass
-
 
 
 # == HELPERS ==#

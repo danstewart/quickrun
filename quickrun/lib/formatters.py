@@ -9,15 +9,20 @@ from rich.table import Table as RichTable
 
 
 def default(state):
-	for result in state.get('output', []):
+	for result in state.get("output", []):
 		print(result)
 
 
 def fake_shell(state):
 	console = RichConsole()
-	for result in state.get('output', []):
-		server, ip, command, output = result['server'], result['ip'], result['command'], result['output']
-		console.print(f'ubuntu@{ip}|{server} $ {command}')
+	for result in state.get("output", []):
+		server, ip, command, output = (
+			result["server"],
+			result["ip"],
+			result["command"],
+			result["output"],
+		)
+		console.print(f"ubuntu@{ip}|{server} $ {command}")
 		console.print(output)
 		console.print()
 
@@ -25,7 +30,7 @@ def fake_shell(state):
 def table(state):
 	table = RichTable(title="Results")
 
-	data = state.get('output', [])
+	data = state.get("output", [])
 	if len(data) > 0:
 		for column in data[0].keys():
 			table.add_column(column)
