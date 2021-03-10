@@ -19,13 +19,13 @@ def main(host, user):
 		print(f"{server.ip} is down")
 
 
-def check(ssh, max_attempts=10, sleep_time=10):
+def check(conn, max_attempts=10, sleep_time=10):
 	"""
 	Checks web server is running
 	"""
 	attempts = 0
 	while attempts < max_attempts:
-		out, status = ssh.run(
+		out, status = conn.run(
 			"curl -m3 http://127.0.0.1:5001/api/ping",
 			strip_cmd=True,
 			with_exit=True,
