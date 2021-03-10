@@ -32,9 +32,7 @@ class Scratch(Base):
 		]
 
 		# Define our servers
-		servers = find_instances(name, region=region)
-		servers = list(map(lambda x: Server(name=x["Name"], ip=x["PrivateIp"]), servers))
-		self.servers = servers
+		self.servers = Server.from_list(find_instances(name, region=region))
 
 
 if __name__ == "__main__":

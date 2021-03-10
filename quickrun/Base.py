@@ -18,6 +18,13 @@ class Server:
 	ip: str  # The IP or hostname to connect to
 	user: str = "ubuntu"  # The user to connect as
 
+	@classmethod
+	def from_list(cls, server_list):
+		"""
+		Takes a list of server dicts and returns a List[Server]
+		"""
+		return list(map(lambda x: Server(name=x["Name"], ip=x["PrivateIp"]), server_list))
+
 
 # A command object
 @dataclass

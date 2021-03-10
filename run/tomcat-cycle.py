@@ -11,8 +11,7 @@ from quickrun.lib.aws_cli import find_instances
 @click.option("--name", required=True, help="The env name to search for")
 @click.option("--region", default="eu-west-2", help="The env name to search for")
 def main(name, region):
-	servers = find_instances(name, region=region)
-	servers = list(map(lambda x: Server(name=x["Name"], ip=x["PrivateIp"]), servers))
+	servers = Server.from_list(find_instances(name, region=region))
 
 	for server in servers:
 		ssh = SSH(server.ip, server.user)
