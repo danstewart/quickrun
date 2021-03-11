@@ -14,7 +14,7 @@ import quickrun.helpers.formatters as formatters
 from quickrun.cli.ssh import ssh
 
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 
 
 @dataclass
