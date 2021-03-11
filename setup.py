@@ -23,7 +23,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
     ],
-    packages=["quickrun", "quickrun/lib"],
+    packages=["quickrun", "quickrun/helpers", "quickrun/cli"],
     include_package_data=True,
     install_requires=["rich", "pexpect"],
 )
