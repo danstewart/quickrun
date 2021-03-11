@@ -8,7 +8,7 @@ import sys
 import click
 from rich.console import Console
 from quickrun import QuickRun, Command, Server
-from quickrun.lib.aws_cli import find_instances
+from quickrun.cli.aws import find_instances
 
 console = Console()
 
@@ -34,7 +34,7 @@ class GetSettings(QuickRun):
 		]
 
 		# Define our servers
-		self.servers = Server.from_list(find_instances(name, region=region), user="ubuntu")
+		self.servers = Server.from_list(find_instances({ 'tag:Name': name }, contains=True, region=region))
 
 	# == HOOKS ==#
 	def before_connection(self, server):

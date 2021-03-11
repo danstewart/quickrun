@@ -5,7 +5,7 @@ Basic wrapper around pexpect.pxssh
 from pexpect import pxssh
 
 
-class SSH:
+class ssh:
 	def __init__(self, server, user, pw=None):
 		self.ssh = pxssh.pxssh()
 

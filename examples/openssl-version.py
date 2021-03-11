@@ -6,9 +6,8 @@ Get the openssl version for all haproxy servers
 
 import sys
 import click
-import quickrun.lib.formatters as formatters
-from quickrun import QuickRun, Command, Server
-from quickrun.lib.aws_cli import find_instances
+from quickrun import QuickRun, Command, Server, formatters
+from quickrun.cli.aws import find_instances
 
 
 @click.command()
@@ -24,7 +23,7 @@ def main(name, region):
 		Command(name="Get openssl version", cmd="openssl version"),
 	]
 
-	qr.servers = Server.from_list(find_instances(name, region=region))
+	qr.servers = Server.from_list(find_instances({ 'tag:Name': name }, contains=True, region=region))
 
 	qr.main()
 	qr.display()

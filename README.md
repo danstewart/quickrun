@@ -20,18 +20,36 @@ pip3 install quickrun
 Use:  
 ```python
 import quickrun
+from quickrun.cli.aws import find_instances
 
 # Define instance
 qr = quickrun.QuickRun()
 
 # Configure
-qr.servers = [ quickrun.Server(ip="my-ip-address", name="my-web-server", user="username") ]
-qr.commands = [ quickrun.Command(name="Disk usage", cmd="df -h") ]
+
+qr.servers = [ quickrun.Server(host="my-ip-address-or-hostname", name="my-web-server", user="username") ]
+# or from aws cli
+qr.servers = quickrun.Servers.from_list(find_instances({ 'tag:environment': 'production' }, region='eu-west-1'))
+
+qr.commands = [ quickrun.Command(name="Get openssl version", cmd="openssl version") ]
 qr.formatter = quickrun.formatters.table
 
 # Call
 qr.main()
 qr.display()
+```
+
+This will display something like:
+```
+                                            Results
+┏━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ server             ┃ host        ┃ command         ┃ output                     ┃
+┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ my-instance-name-1 │ 192.168.0.1 │ openssl version │ OpenSSL 1.1.1  11 Sep 2018 │
+│ my-instance-name-2 │ 192.168.0.1 │ openssl version │ OpenSSL 1.1.1  11 Sep 2018 │
+│ my-instance-name-3 │ 192.168.0.1 │ openssl version │ OpenSSL 1.1.1  11 Sep 2018 │
+│ my-instance-name-4 │ 192.168.0.1 │ openssl version │ OpenSSL 1.1.1  11 Sep 2018 │
+└────────────────────┴─────────────┴─────────────────┴────────────────────────────┘
 ```
 
 #### Making a script

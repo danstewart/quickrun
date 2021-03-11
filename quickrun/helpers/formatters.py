@@ -20,13 +20,13 @@ def none(_):
 def fake_shell(state):
 	console = RichConsole()
 	for result in state.get("output", []):
-		server, ip, command, output = (
+		server, host, command, output = (
 			result["server"],
-			result["ip"],
+			result["host"],
 			result["command"],
 			result["output"],
 		)
-		console.print(f"ubuntu@{ip}|{server} $ {command}")
+		console.print(f"ubuntu@{host}|{server} $ {command}")
 		console.print(output)
 		console.print()
 

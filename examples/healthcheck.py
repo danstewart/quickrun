@@ -8,15 +8,15 @@ import quickrun
 @click.option("--host", required=True, help="The hostname to connect to")
 @click.option("--user", required=True, help="The user to log in as")
 def main(host, user):
-	server = quickrun.Server(name=host, ip=host, user=user)
+	server = quickrun.Server(name=host, host=host, user=user)
 
-	conn = quickrun.ssh(server.ip, server.user)
+	conn = quickrun.ssh(server.host, server.user)
 	up = check(conn)
 
 	if up:
-		print(f"{server.ip} is running")
+		print(f"{server.host} is running")
 	else:
-		print(f"{server.ip} is down")
+		print(f"{server.host} is down")
 
 
 def check(conn, max_attempts=10, sleep_time=10):

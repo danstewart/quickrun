@@ -6,13 +6,12 @@ It defines the basic outline runners should have and validates they are set corr
 """
 
 import sys
-from typing import List, Dict
+from typing import List, Dict, Optional
 from dataclasses import dataclass
 
 # Export our lib to callers
-from quickrun.lib.ssh import SSH as ssh
-import quickrun.lib.formatters as formatters
-import quickrun.lib.aws_cli as aws_cli
+import quickrun.helpers.formatters as formatters
+from quickrun.cli.ssh import ssh
 
 
 __version__ = "0.0.2"
@@ -20,9 +19,10 @@ __version__ = "0.0.2"
 
 @dataclass
 class Server:
-	name: str  # The name/tag for this server
-	ip: str  # The IP or hostname to connect to
+	name: str  # A friendly name for this server
+	host: str  # The IP or hostname to connect to
 	user: str  # The user to connect as
+	pw: Optional[str] = None  # Optional password - ssh keys are preferred
 
 	@classmethod
 	def from_list(cls, server_list, ip_type="PrivateIp", default_user="ubuntu"):
@@ -31,7 +31,7 @@ class Server:
 		"""
 		return list(map(lambda x: Server(
 			name=x["Name"],
-			ip=x[ip_type],
+			host=x[ip_type],
 			user=x.get("user", default_user)
 		), server_list))
 
@@ -92,7 +92,7 @@ class QuickRun:
 		self.before_connection(server)
 
 		try:
-			conn = ssh(server.ip, server.user)
+			conn = ssh(server.host, server.user)
 		except Exception as e:
 			print(
 				f"Following error was raised during ssh to {server}: {e}",
@@ -125,7 +125,7 @@ class QuickRun:
 		self.state["output"].append(
 			{
 				"server": server.name,
-				"ip": server.ip,
+				"host": server.host,
 				"command": command.cmd.strip(),
 				"output": output.strip(),
 			}
