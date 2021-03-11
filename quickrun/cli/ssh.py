@@ -6,11 +6,13 @@ from pexpect import pxssh
 
 
 class ssh:
-	def __init__(self, server, user, pw=None):
+	def __init__(self, server, user, pw=None, login_timeout=5):
 		self.ssh = pxssh.pxssh()
+		self.server = server
+		self.user = user
 
 		try:
-			self.ssh.login(server, user, pw, login_timeout=3)
+			self.ssh.login(server, user, pw, login_timeout=login_timeout)
 		except pxssh.ExceptionPxssh:
 			raise Exception(f"SSH to {server} failed, bad credentials or ip type?")
 
