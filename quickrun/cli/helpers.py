@@ -2,11 +2,15 @@
 A collection of CLI helper methods
 """
 
-def challenge(msg, expect):
+import typing
+from typing import Optional
+
+def challenge(expect: str, msg: Optional[str]=None) -> bool:
 	"""
-	Prompt user to verify the run will do what they expect
+	Prompt user to enter an expected value as confirmation
 	"""
-	print(msg)
+	if msg:
+		print(msg)
 
 	challenge = input(f"Enter '{expect}' to continue: ")
 	try:

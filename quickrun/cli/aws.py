@@ -3,17 +3,29 @@ Helpers for finding servers using the AWS CLI
 NOTE: Just calls the aws cli directly
 """
 
-import os, json, subprocess
+import os, sys, json, typing, subprocess, jq
+
+def _build_filter(search: dict, contains=False):
+	"""
+	Take a dict of aws cli filters and return as list in correct format
+	"""
+	filters = []
+	for name, value in search.items():
+		if contains:
+			value = f'*{value}*'
+		filters.append(f'"Name={name},Values={value}"')
+	
+	return filters
 
 
-def find_tag(tags, key):
+def _find_tag(tags: dict, key: str):
 	"""
 	Get the value of a tag from the tags array
 	"""
 	return next(filter(lambda x: x["Key"] == key, tags))["Value"]
 
 
-def find_instances(search: dict, contains=False, running_only=True, region="eu-west-2"):
+def find_instances(search: dict={}, contains: bool=False, running_only: bool=True, region: str="eu-west-2", raw: bool=False):
 	"""
 	Takes an instance name and optional region and returns the instanceId, PublicIp, PrivateIp and Tags
 
@@ -21,22 +33,17 @@ def find_instances(search: dict, contains=False, running_only=True, region="eu-w
 	contains:     helper to automatically wrap filter value in asterisks
 	running_only: filters out non running instances
 	region:       the aws region
+	raw:          returns raw output from aws cli
 	"""
 
-	filters = []
-	for tag_name, tag_value in search.items():
-		if contains:
-			tag_value = f'*{tag_value}*'
-		filters.append(f'"Name={tag_name},Values={tag_value}"')
+	filters = _build_filter(search, contains)
 
 	# Ignore non running instances
 	if running_only:
 		filters.append('"Name=instance-state-name,Values=running"')
 
 	filters = ' '.join(filters)
-	aws = f'aws ec2 describe-instances --output json --filters {filters} --region {region}'
-	jq = "jq '[.Reservations[].Instances[]] | map({ InstanceId, PublicIp: .PublicIpAddress, PrivateIp: .PrivateIpAddress, Tags })'"
-	command = f"{aws} | {jq}"
+	command = f'aws ec2 describe-instances --output json --filters {filters} --region {region}'
 
 	proc = subprocess.Popen(
 		command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -50,10 +57,16 @@ def find_instances(search: dict, contains=False, running_only=True, region="eu-w
 	if err:
 		raise Exception(err)
 
-	results = json.loads(out)
+	if raw:
+		return json.loads(out)
+
+	results = jq\
+		.compile('[.Reservations[].Instances[]] | map({ InstanceId, PublicIp: .PublicIpAddress, PrivateIp: .PrivateIpAddress, Tags })')\
+		.input(text=out.decode("utf-8"))\
+		.first()
 
 	# Pull the name out of the tag and put it at the top level
 	for result in results:
-		result["Name"] = find_tag(result["Tags"], "Name")
+		result["Name"] = _find_tag(result["Tags"], "Name")
 
 	return results

@@ -4,7 +4,6 @@ quickrun is a module designed to make it easy to run commands and gather info fr
 
 ## Dependencies
 - python3.8
-- jq
 - aws cli (v1)
 
 ---
@@ -29,7 +28,7 @@ qr = quickrun.QuickRun()
 
 qr.servers = [ quickrun.Server(host="my-ip-address-or-hostname", name="my-web-server", user="username") ]
 # or from aws cli
-qr.servers = quickrun.Servers.from_list(find_instances({ 'tag:environment': 'production' }, region='eu-west-1'))
+qr.servers = quickrun.Servers.from_list(find_instances({ 'tag:environment': 'production', 'tag:name': '*web*' }, region='eu-west-1'))
 
 qr.commands = [ quickrun.Command(name="Get openssl version", cmd="openssl version") ]
 qr.formatter = quickrun.formatters.table
@@ -81,8 +80,17 @@ There are a few formatters defined in `quickrun.formatters`
 - `table`: Outputs the run as a table
 
 
-##### aws_cli
-There is also a helpful `quickrun.aws_cli.find_instances()` function that takes a string and region and returns all instances with the `name` tag containing that string.  
+##### cli.aws
+There is also a helpful `quickrun.cli.aws.find_instances()` function that takes a dict of filters and returns matching instances.  
+
+Example:
+```python
+find_instances({ 'tag:name': 'web', 'tag:environment': 'prod' }, region='eu-west-1')
+```
+
+##### cli.helpers
+There is a collection of misc CLI helpers in `quickrun.cli.helpers`.  
+Currently there is only `challenge(expect: str) -> bool` which prompts the user to re-enter a value.  
 
 ---
 
