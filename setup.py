@@ -10,7 +10,7 @@ README = (HERE / "README.md").read_text()
 # This call to setup() does all the work
 setup(
     name="quickrun",
-    version="0.0.7",
+    version="0.0.8",
     description="Easily run commands and gather info across multiple servers",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -25,5 +25,5 @@ setup(
     ],
     packages=["quickrun", "quickrun/helpers", "quickrun/cli"],
     include_package_data=True,
-    install_requires=["rich", "pexpect"],
+    install_requires=["rich", "pexpect", "jq"],
 )
